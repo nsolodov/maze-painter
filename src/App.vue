@@ -39,7 +39,8 @@ const won = ref(false) // флаг победы
 const time = ref(0) // таймер
 let timerInterval // ссылка на интервал таймера
 
-const generateMaze = () => {
+const generateMaze = () => 
+{
   const maze = Array.from({ length: ROWS }, () => Array(COLS).fill(0)) // создаём пустой лабиринт
   const visited = Array.from({ length: ROWS }, () => Array(COLS).fill(false)) // отмечаем посещённые клетки
 
@@ -50,14 +51,16 @@ const generateMaze = () => {
   const dirs = [[0,2],[0,-2],[2,0],[-2,0]] // направления движения через одну клетку
   const inside = (r,c)=>r>0 && r<ROWS-1 && c>0 && c<COLS-1 // проверка границ
 
-  while (stack.length) {
+  while (stack.length) 
+  {
     const [r,c] = stack[stack.length-1] // берём последнюю клетку
 
     const neighbors = dirs
       .map(([dr,dc]) => [r+dr,c+dc]) // ищем соседей
       .filter(([nr,nc]) => inside(nr,nc) && !visited[nr][nc]) // оставляем допустимых
 
-    if (!neighbors.length) {
+    if (!neighbors.length) 
+    {
       stack.pop() // если нет соседей — откатываемся назад
       continue
     }
@@ -74,8 +77,10 @@ const generateMaze = () => {
   return maze // возвращаем готовый лабиринт
 }
 
-class Particle {
-  constructor(x,y,opt={}) {
+class Particle 
+{
+  constructor(x,y,opt={}) 
+  {
     this.x=x // позиция по x
     this.y=y // позиция по y
     this.vx=opt.vx??(Math.random()-0.5)*2 // скорость по x
@@ -87,7 +92,8 @@ class Particle {
     this.speed=Math.random()*0.05+0.02 // скорость вращения
   }
 
-  update(){
+  update()
+  {
     this.life-- // уменьшаем жизнь
     this.angle += this.speed // вращаем движение
     this.x += Math.cos(this.angle)*1.5 + this.vx // двигаем по x
@@ -95,7 +101,8 @@ class Particle {
     this.vy += 0.05 // добавляем гравитацию
   }
 
-  draw(ctx){
+  draw(ctx)
+  {
     ctx.globalAlpha=this.life/30 // делаем прозрачность
     ctx.fillStyle=this.color // цвет частицы
     ctx.beginPath()
@@ -110,16 +117,20 @@ const paintedCount = computed(()=>painted.value.flat().filter(Boolean).length) /
 
 let t = 0 // счётчик анимации
 
-const draw = () => {
+const draw = () => 
+{
   t += 0.05 // увеличиваем время
   ctx.value.clearRect(0,0,canvas.value.width,canvas.value.height) // очищаем экран
 
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
+  for(let r=0;r<ROWS;r++)
+  {
+    for(let c=0;c<COLS;c++)
+    {
       const x=c*CELL
       const y=r*CELL
 
-      if(maze.value[r][c]===0){
+      if(maze.value[r][c]===0)
+      {
         ctx.value.fillStyle='#222' // цвет стены
         ctx.value.fillRect(x,y,CELL,CELL)
       } else {
@@ -139,14 +150,16 @@ const draw = () => {
 
   drawBall(player.value,'#ff4444',t) // рисуем игрока
 
-  particles.value.forEach((p,i)=>{
+  particles.value.forEach((p,i)=>
+  {
     p.update()
     p.draw(ctx.value)
     if(p.life<=0) particles.value.splice(i,1) // удаляем умершие частицы
   })
 }
 
-const drawBall = (obj,color,tick)=>{
+const drawBall = (obj,color,tick)=>
+{
   const x = obj.c*CELL+CELL/2
   const y = obj.r*CELL+CELL/2
 
@@ -170,28 +183,33 @@ const drawBall = (obj,color,tick)=>{
   ctx.value.shadowBlur=0
 }
 
-const dirs = {
+const dirs = 
+{
   ArrowUp:{dr:-1,dc:0},
   ArrowDown:{dr:1,dc:0},
   ArrowLeft:{dr:0,dc:-1},
   ArrowRight:{dr:0,dc:1}
 }
 
-const move = async (key)=>{
+const move = async (key)=>
+{
   if(!dirs[key] || won.value) return
 
   let {dr,dc}=dirs[key]
   let {r,c}=player.value
 
-  while(true){
+  while(true)
+  {
     let nr=r+dr,nc=c+dc
     if(nr<0||nr>=ROWS||nc<0||nc>=COLS||maze.value[nr][nc]===0) break
 
     r=nr; c=nc
 
-    if(!painted.value[r][c]){
+    if(!painted.value[r][c])
+    {
       painted.value[r][c]=true
-      for(let i=0;i<10;i++){
+      for(let i=0;i<10;i++)
+      {
         particles.value.push(new Particle(c*CELL+CELL/2,r*CELL+CELL/2))
       }
     }
@@ -200,13 +218,15 @@ const move = async (key)=>{
     await new Promise(res=>setTimeout(res,35))
   }
 
-  if(paintedCount.value===totalFloors.value){
+  if(paintedCount.value===totalFloors.value)
+  {
     won.value=true
     setTimeout(nextLevel,800)
   }
 }
 
-const loadLevel = ()=>{
+const loadLevel = ()=>
+{
   maze.value = generateMaze()
   painted.value = Array.from({ length: ROWS }, () => Array(COLS).fill(false))
   player.value = { r: 1, c: 1 }
@@ -215,12 +235,14 @@ const loadLevel = ()=>{
   startTimer()
 }
 
-const nextLevel = ()=>{
+const nextLevel = ()=>
+{
   level.value++
   loadLevel()
 }
 
-const resetLevel = ()=>{
+const resetLevel = ()=>
+{
   painted.value = Array.from({ length: ROWS }, () => Array(COLS).fill(false))
   player.value = { r: 1, c: 1 }
   particles.value = []
@@ -228,20 +250,23 @@ const resetLevel = ()=>{
   startTimer()
 }
 
-const startTimer = ()=>{
+const startTimer = ()=>
+{
   clearInterval(timerInterval)
   time.value=0
   timerInterval=setInterval(()=>time.value++,1000)
 }
 
-const loop = ()=>{
+const loop = ()=>
+{
   draw()
   requestAnimationFrame(loop)
 }
 
 const handleKey = e => move(e.key)
 
-onMounted(()=>{
+onMounted(()=>
+{
   canvas.value.width=COLS*CELL
   canvas.value.height=ROWS*CELL
   ctx.value=canvas.value.getContext('2d')
@@ -251,14 +276,16 @@ onMounted(()=>{
   loop()
 })
 
-onUnmounted(()=>{
+onUnmounted(()=>
+{
   window.removeEventListener('keydown',handleKey)
   clearInterval(timerInterval)
 })
 </script>
 
 <style scoped>
-.game-container{
+.game-container
+{
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -270,20 +297,23 @@ onUnmounted(()=>{
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h1{
+h1
+{
   font-size:2rem;
   color:#ff66ff;
   margin-bottom:15px;
   text-shadow:0 0 10px #ff44ff;
 }
 
-.stats{
+.stats
+{
   display:flex;
   gap:40px;
   margin-bottom:20px;
 }
 
-.canvas-wrapper{
+.canvas-wrapper
+{
   display:flex;
   justify-content:center;
   align-items:center;
@@ -293,13 +323,15 @@ h1{
   box-shadow:0 10px 40px rgba(0,0,0,0.8);
 }
 
-canvas{
+canvas
+{
   display:block;
   border:6px solid #444;
   border-radius:12px;
 }
 
-button{
+button
+{
   width:220px;
   margin-top:20px;
   padding:12px;
@@ -311,7 +343,8 @@ button{
   cursor:pointer;
 }
 
-.win-message{
+.win-message
+{
   font-size:1.8rem;
   color:#00ffaa;
   margin-top:20px;
